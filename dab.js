@@ -45,7 +45,7 @@ var defaults = {
 	debug: false
 } 
 
-module.exports = function(obj) {
+var Dab = function(obj) {
 	// obj = {
 	// 	width, height,
 	// 	players
@@ -117,7 +117,9 @@ module.exports = function(obj) {
 		}
 
 		if (this.debug) console.log("Added line!");
+		if (this.debug) console.log("Boxes:");
 		if (this.debug) console.log(Object.values(this.boxes));
+		if (this.debug) console.log("Score:");
 		if (this.debug) console.log(Object.values(this.score));
 		if (this.debug) console.log("Complete: "+isComplete(this));
 		if (this.debug) console.log("Winning: "+isWinning(this));
@@ -126,3 +128,5 @@ module.exports = function(obj) {
 		return callback();
 	}
 }
+
+// module.exports = Dab;

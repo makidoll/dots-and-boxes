@@ -1,12 +1,13 @@
 {
-  "name": "dots-and-boxes",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+	"name": "dots-and-boxes",
+	"description": "The Dots and Boxes online game",
+	"author": "Maki",
+	"main": "app.js",
+	"scripts": {
+		"start": "node app.js"
+	},
+	"dependencies": {
+		"express": "^4.16.2",
+		"socket.io": "^2.0.4"
+	}
 }
