@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Dots and Boxes</title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+		<style type="text/css">
+			body {
+				font-family: "Roboto", sans-serif;
+			}
+
+			#content {
+				position: fixed; margin: auto;
+				top: 0; left: 0; right: 0; bottom: 0;
+			}
+
+			table * {
+				transition: all 100ms;
+				transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+			}
+
+			table {
+				table-layout: fixed;
+			}
+
+			td {
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				word-wrap: break-word;
+			}
+
+			.dot {
+				width: 12px; 
+				height: 12px; 
+				background-color: #000;
+				border-radius: 15px;
+			}
+
+			.h-line {
+				width: 48px; 
+				height: 12px; 
+				background-position: 0 3px !important;
+				background-size: 48px 6px !important;
+				background-repeat: no-repeat !important;
+				background: linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2));
+			}
+
+			.v-line {
+				width: 12px;
+				height: 48px; 
+				background-position: 3px 0 !important;
+				background-size: 6px 48px !important;
+				background-repeat: no-repeat !important;
+				background: linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2));
+			}
+
+			.box {
+				width: 48px;
+				height: 48px;
+				border-radius: 6px;
+			}
+
+			.h-line:hover, .v-line:hover {
+				opacity: 1 !important;
+			}
+
+			.click {
+				cursor: pointer;
+			}
+
+			#turn {
+				margin-top: 24px;
+				height: 64px; width: 100%;
+			}
+
+			#turn table {
+				table-layout: fixed;
+				width: 100%; height: 100%;
+				text-align: center;
+			}
+
+			#turn td {
+				height: 100%;
+				background: linear-gradient(0deg, red, red);
+				background-repeat: no-repeat;
+				border-radius: 6px;
+				margin: 0; padding: 0;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content">
+			<!-- <div id="game"></div>
+			<div id="turn"></div> -->
+		</div>
+		<script type="text/javascript" src="file:///D:/Users/Max/Desktop/dots-and-boxes/dab.js"></script>
+		<script type="text/javascript">
+			var Games = [];
+			var Game = function(obj) {
+				Games.push(this);
+				this.id = Games.length-1;
+
+				this.game = new Dab(obj.dab);
+
+				this.table = document.createElement("table");
+				this.table.cellSpacing = 0;
+
+				this.div = {};
+
+				// New game div
+				this.div.game = document.createElement("div");
+				this.div.game.id = "game";
+				this.div.game.appendChild(this.table);
+
+				this.div.game.style.width = (
+					(this.game.width*obj.size.large)+    // boxes
+					((this.game.width+1)*obj.size.small) // boxes
+				)+"px";
+
+				this.div.game.style.height = (
+					(this.game.height*obj.size.large)+    // boxes
+					((this.game.height+1)*obj.size.small) // boxes
+				)+"px";
+
+				// New turns div
+				this.div.turn = document.createElement("div");
+				this.div.turn.id = "turn";
+
+				// Add to main div
+				this.div.main = document.getElementById(obj.id);
+				this.div.main.appendChild(this.div.game)
+				this.div.main.appendChild(this.div.turn);
+				this.div.main.style.width = this.div.game.style.width;
+				this.div.main.style.height = 
+					(parseInt(this.div.game.style.height.slice(0,-2))+88)+"px";
+
+				this.css = {
+					line: ["opacity: 1; background: linear-gradient(0deg, ", ", ", ");"],
+					box: ["background-color: ", ";"]
+				}
+
+				this.colors = (obj.dab.colors)? obj.dab.colors: ["#03A9F4", "#F44336", "#FFC107", "#8BC34A"];
+
+				this.draw = function() {
+				let table_out = "";
+					for (var y=0; y<this.game.height+1; y++) {
+
+						// o-o-o
+						table_out += "<tr>";
+						for (var x=0; x<this.game.width; x++) {
+							table_out += "<td class='dot'></td>"
+							table_out += (this.game.lines.h[x][y]>-1)?
+								"<td class='h-line' style='"+
+									this.css.line[0]+this.colors[this.game.lines.h[x][y]]+
+									this.css.line[1]+this.colors[this.game.lines.h[x][y]]+
+									this.css.line[2]+"'></td>":
+								"<td class='h-line click' style='opacity: 0;' "+
+									"onclick='Games["+this.id+"].line(\"h\", "+x+", "+y+", "+this.game.turn+")'></td>";
+						}
+						table_out += "<td class='dot'></td></td>";
+
+						// |#|#|
+						if (this.game.height != y) {
+							table_out += "<tr>";
+							for (var x=0; x<this.game.width; x++) {
+								table_out += (this.game.lines.v[x][y]>-1)?
+									"<td class='v-line' style='"+
+										this.css.line[0]+this.colors[this.game.lines.v[x][y]]+
+										this.css.line[1]+this.colors[this.game.lines.v[x][y]]+
+										this.css.line[2]+"'></td>":
+									"<td class='v-line click' style='opacity: 0;' "+
+										"onclick='Games["+this.id+"].line(\"v\", "+x+", "+y+", "+this.game.turn+")'></td>";
+								table_out += (this.game.boxes[x][y]>-1)?
+									"<td class='box' style='"+
+										this.css.box[0]+this.colors[this.game.boxes[x][y]]+
+										this.css.box[1]+"'></td>":
+									"<td class='box'></td>";
+							}
+							table_out += (this.game.lines.v[this.game.width][y]>-1)?
+								"<td class='v-line' style='"+
+									this.css.line[0]+this.colors[this.game.lines.v[this.game.width][y]]+
+									this.css.line[1]+this.colors[this.game.lines.v[this.game.width][y]]+
+									this.css.line[2]+"'></td>":
+								//"<td class='v-line' style='opacity: 0;'></td>";
+								"<td class='v-line click' style='opacity: 0;' "+
+									"onclick='Games["+this.id+"].line(\"v\", "+(this.game.width)+", "+y+", "+this.game.turn+")'></td>";
+						}
+
+					} this.table.innerHTML = table_out;
+				}
+
+				this.line = function(dir, x, y, p, callback) {
+					callback = (callback)? callback: function(){};
+					let scope = this;
+					this.game.line(dir, x, y, p, function() {
+						scope.draw();
+						scope.updateTurn();
+						callback();
+					});
+				}
+
+				this.updateTurn = function() {
+					let turn_out = '<table cellspacing="10"><tr>';
+					for (var i=0; i<this.game.players; i++) {
+						let opacity = (this.game.turn==i)? 1: 0.4;
+						turn_out += '<td style="'+
+						'background: linear-gradient(0deg, '+this.colors[i]+', '+this.colors[i]+');'+
+						'opacity: '+opacity+';'+
+						'">Player '+(i+1)+'</td>';
+					}
+					turn_out += '</tr></table>'
+					this.div.turn.innerHTML = turn_out;
+				}; this.updateTurn();
+
+				this.draw();
+			}
+
+			var game = new Game({
+				id: "content",
+				size: {
+					small: 12,
+					large: 48,
+				},
+				dab: {
+					width: 5,
+					height: 5,
+					players: 2,
+					debug: false
+				}
+			});
+
+		</script>
+	</body>
+</html>

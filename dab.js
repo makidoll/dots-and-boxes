@@ -71,9 +71,20 @@ var Dab = function(obj) {
 	}
 
 	this.complete = function(info){};
+	this.turn = 0;
 		
 	if (this.debug) console.log("New game: ");
 	if (this.debug) console.log(this);
+
+	this.nextTurn = function() {
+		if (this.turn>=this.players-1) {
+			this.turn = 0;
+		} else {
+			this.turn++;
+		}
+		if (this.debug) console.log("Turn changed: "+this.turn);
+		return this.turn;
+	}
 
 	this.line = function(dir, x, y, p, callback) {
 		callback = (callback)? callback: function(){};
@@ -95,6 +106,7 @@ var Dab = function(obj) {
 			return callback();
 		}
 
+		let win = false;
 		for (var x=0; x<this.width; x++) {
 			for (var y=0; y<this.height; y++) {
 				if (this.boxes[x][y]>-1) continue;
@@ -108,6 +120,7 @@ var Dab = function(obj) {
 						this.boxes[x][y] = p;
 						this.score[p]++;
 						if (this.debug) console.log("Added box!");
+						win = true;
 					}
 				} catch(err) {
 					if (this.debug) console.log(err);
@@ -124,6 +137,7 @@ var Dab = function(obj) {
 		if (this.debug) console.log("Complete: "+isComplete(this));
 		if (this.debug) console.log("Winning: "+isWinning(this));
 
+		if (!win) this.nextTurn();
 		if (isComplete(this)) this.complete(isWinning(this));
 		return callback();
 	}
